@@ -26,6 +26,7 @@ public class TCPClientFile {
         File file = new File("/home/darcusfenix/Documentos/ESCOM/REDES-APPS/cliente/enviar.txt");
         // Get the size of the file
         long length = file.length();
+        System.err.println(length);
         byte[] bytes = new byte[16 * 1024];
         InputStream in = new FileInputStream(file);
         OutputStream out = socket.getOutputStream();
