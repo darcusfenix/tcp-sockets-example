@@ -23,6 +23,9 @@
  */
 package ui;
 
+import java.io.IOException;
+import javax.swing.JFrame;
+
 /**
  *
  * @author darcusfenix
@@ -63,6 +66,11 @@ public class JFrameServerConnection extends javax.swing.JFrame {
         jLabel2.setText("RUTA DE ALMACENAMIENTO: ");
 
         btnServerIniciar.setText("INICIAR");
+        btnServerIniciar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnServerIniciarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -101,6 +109,24 @@ public class JFrameServerConnection extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnServerIniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnServerIniciarActionPerformed
+
+        if (!inputServerPuerto.getText().isEmpty() && !inputServerRuta.getText().isEmpty()) {
+            servidor.Servidor.iniciarConexion(Integer.parseInt(inputServerPuerto.getText()), inputServerRuta.getText());
+            JFrameServerIndex frameIndex = new JFrameServerIndex();
+            frameIndex.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frameIndex.setLocationRelativeTo(null);
+            frameIndex.pack();
+            frameIndex.setVisible(true);
+
+            this.dispose();
+        } else {
+            inputServerPuerto.setText("Error");
+            inputServerRuta.setText("Error");
+        }
+
+    }//GEN-LAST:event_btnServerIniciarActionPerformed
 
     /**
      * @param args the command line arguments

@@ -24,7 +24,11 @@
 package ui;
 
 import bean.Archivo;
+import cliente.Cliente;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableColumnModel;
@@ -41,8 +45,15 @@ public class JFrameClientIndex extends javax.swing.JFrame {
     /**
      * Creates new form JFrameIndex
      */
+    private List<Archivo> archivos;
     public JFrameClientIndex() {
         initComponents();
+        setTextLOG("INFO: SE INICIÓ LA CONEXIÓN");
+        archivos = new ArrayList<Archivo>();
+    }
+    public void setTextLOG(String text){
+        String LOG = textAreaLogClient.getText() + "\n" + "["+(new Date())+"] " + text;
+        textAreaLogClient.setText(LOG);
     }
 
     /**
@@ -61,8 +72,10 @@ public class JFrameClientIndex extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         tableClient = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
+        btnEnviarArchivos = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Práctica 1 - Cliente");
 
         btnUploadFIles.setText("SELECCIONAR ARCHIVOS");
         btnUploadFIles.addActionListener(new java.awt.event.ActionListener() {
@@ -101,6 +114,13 @@ public class JFrameClientIndex extends javax.swing.JFrame {
 
         jLabel2.setText("ARCHIVOS A ENVIAR");
 
+        btnEnviarArchivos.setText("ENVIAR ARCHIVOS");
+        btnEnviarArchivos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEnviarArchivosActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -113,7 +133,9 @@ public class JFrameClientIndex extends javax.swing.JFrame {
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnUploadFIles)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnUploadFIles, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnEnviarArchivos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(12, 12, 12)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 710, Short.MAX_VALUE)
@@ -129,10 +151,13 @@ public class JFrameClientIndex extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(btnUploadFIles, javax.swing.GroupLayout.DEFAULT_SIZE, 182, Short.MAX_VALUE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addGap(20, 20, 20)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnUploadFIles, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnEnviarArchivos, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
                 .addComponent(labelLogClient)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -149,7 +174,8 @@ public class JFrameClientIndex extends javax.swing.JFrame {
         chooser.showOpenDialog(this);
 
         File[] files = chooser.getSelectedFiles();
-        
+        String spn = files.length > 1 ? "ARCHIVOS" : "ARCHIVO";
+        setTextLOG("INFO: SE SELECCIONARON " + files.length + " " + spn);
 
         for (Integer i = 0; i < files.length; i++) {
             String extension = "";
@@ -159,46 +185,47 @@ public class JFrameClientIndex extends javax.swing.JFrame {
                 extension = files[i].getName().substring(j + 1);
             }
             
-            Archivo archivo = new Archivo(files[i].getName(), extension, files[i].length(), false, 0);
+            Archivo archivo = new Archivo(files[i].getName(), extension, files[i].length(), false, 0, files[i].getAbsolutePath());
+            setTextLOG("INFO: Archivo [" + (i + 1) + "] { " + "NOMBRE: " + archivo.getNombre() +", " +
+                    " EXTENSIÓN: " + archivo.getTipo() +", " +
+                    " NOMBRE: " + archivo.getNombre() +", " +
+                    " BYTES: " + archivo.getSize()+", " +
+                    " ESTADO: " + archivo.isEstado() +", " +
+                    " PORCENTAJE: " + archivo.getPorcentaje() +"}");
+            
+            archivos.add(archivo);
             
             for (Integer w = 0; w < 5; w++){
-                String mensaje;
+                String mensaje = null;
                 switch(w){
                     case 0: 
-                        tableClient.getModel().setValueAt(archivo.getNombre(), i, w);
+                        mensaje = archivo.getNombre();
                         break;
                     case 1:
-                        tableClient.getModel().setValueAt(archivo.getTipo(), i, w);
+                        mensaje = archivo.getTipo();
                         break;
                     case 2:
-                        String mensajeSize = archivo.getSize() + " bytes";
-                        tableClient.getModel().setValueAt(mensajeSize, i, w);
+                        mensaje = archivo.getSize() + " \t bytes";
                         break;
                     case 3:
-                        String mensajeEstado;
-                        if (archivo.isEstado()) {
-                           mensajeEstado = "Enviado";
-                        }else{
-                           mensajeEstado = "En pausa";
-                        }
-                        tableClient.getModel().setValueAt(mensajeEstado, i, w);
+                        mensaje = archivo.isEstado() ? "Enviado" : "En pausa";
                         break;
                     case 4:
-                        String mensajePorcentaje = "% " + archivo.getPorcentaje();
-                        tableClient.getModel().setValueAt(mensajePorcentaje, i, w);
+                        mensaje = "% \t" + archivo.getPorcentaje();
                         break;
                     default:
-                        tableClient.getModel().setValueAt("upss", i, w);
+                        mensaje = "upss";
                         break;
                 }
+                tableClient.getModel().setValueAt(mensaje, i, w);
             }
-                
-            
-            
-            System.err.println(archivo);
         }
         
     }//GEN-LAST:event_btnUploadFIlesActionPerformed
+
+    private void btnEnviarArchivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarArchivosActionPerformed
+        cliente.Cliente.enviarArchivos(archivos);
+    }//GEN-LAST:event_btnEnviarArchivosActionPerformed
 
     /**
      * @param args the command line arguments
@@ -237,6 +264,7 @@ public class JFrameClientIndex extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnEnviarArchivos;
     private javax.swing.JButton btnUploadFIles;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;

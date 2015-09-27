@@ -34,16 +34,18 @@ public class Archivo {
     private Long size;
     private boolean estado;
     private Integer porcentaje;
+    private String ruta;
 
     public Archivo() {
     }
 
-    public Archivo(String nombre, String tipo, Long size, boolean estado, Integer porcentaje) {
+    public Archivo(String nombre, String tipo, Long size, boolean estado, Integer porcentaje, String ruta) {
         this.nombre = nombre;
         this.tipo = tipo;
         this.size = size;
         this.estado = estado;
         this.porcentaje = porcentaje;
+        this.ruta = ruta;
     }
 
     public String getNombre() {
@@ -86,12 +88,17 @@ public class Archivo {
         this.porcentaje = porcentaje;
     }
 
+    public String getRuta() {
+        return ruta;
+    }
+
+    public void setRuta(String ruta) {
+        this.ruta = ruta;
+    }
+
     @Override
     public String toString() {
-        return "Archivo{" + "nombre=" + nombre + ", tipo=" + tipo + ", size=" + size + ", estado=" + estado + ", porcentaje=" + porcentaje + '}';
+        return "Archivo{" + "nombre=" + nombre + ", tipo=" + tipo + ", size=" + size + ", estado=" + estado + ", porcentaje=" + porcentaje + ", ruta=" + ruta + '}';
     }
-    
-    
-    
 }
 
