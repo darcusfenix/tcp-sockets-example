@@ -49,12 +49,11 @@ import ui.JFrameServerConnection;
 public class Servidor {
 
     public static String rutaGuardado;
-    public static String nombreArchivo;
+    public static Integer numArchivos;
     private JFrameServerConnection frameConnection;
     public static ServerSocket serverSocket;
     public static Socket socket;
-    public static InputStream in;
-    public static OutputStream out;
+
     public static DataOutputStream outToMessage;
     public static Long size;
 
@@ -64,22 +63,21 @@ public class Servidor {
     }
 
     public void init() {
-        frameConnection.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frameConnection.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frameConnection.setLocationRelativeTo(null);
         frameConnection.pack();
         frameConnection.setVisible(true);
     }
 
-    public static void iniciarConexion(Integer puerto, String ruta){
+    public static void iniciarConexion(Integer puerto, String ruta) {
+        System.err.println("SE INICIA CONEXIÓN");
         rutaGuardado = ruta;
         try {
             serverSocket = new ServerSocket(4444);
         } catch (IOException ex) {
             System.out.println("Can't setup server on this port number. ");
         }
-    }
 
-    public static void aceptarCliente() {
         socket = null;
 
         try {
@@ -87,48 +85,43 @@ public class Servidor {
         } catch (IOException ex) {
             System.out.println("Can't accept client connection. ");
         }
-        try {
-            in = socket.getInputStream();
-        } catch (IOException ex) {
-            System.out.println("Can't get socket input stream. ");
-        }
-    }
 
-    public static void recibirMensajes() {
         DataInputStream inFromClient = null;
         try {
             inFromClient = new DataInputStream(socket.getInputStream());
-            nombreArchivo = inFromClient.readLine();
-            System.err.println("SERVIDOR: " + nombreArchivo);
+            numArchivos = inFromClient.readInt();
+            System.err.println(numArchivos);
         } catch (IOException ex) {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
 
-    public static void recibirArchivos() {
+        OutputStream out = null;
+        InputStream in = null;
+        for (int i = 0; i < numArchivos; i++) {
+            System.err.println("archivo: " + i);
 
-        try {
-            out = new FileOutputStream(rutaGuardado + nombreArchivo);
-        } catch (FileNotFoundException ex) {
-            System.out.println("File not found. ");
-        }
+            try {
+                DataOutputStream outToClient = new DataOutputStream(socket.getOutputStream());
+                in = socket.getInputStream();
 
-        byte[] bytes = new byte[16 * 1024];
+                out = new FileOutputStream(rutaGuardado + "/archivo-" + numArchivos);
 
-        try {
-            int count;
-            while ((count = in.read(bytes)) > 0) {
-                out.write(bytes, 0, count);
-                size = size - count;
-                System.err.println("QUEDA: " + size);
+                byte[] bytes = new byte[16 * 1024];
+
+                int count;
+                while ((count = in.read(bytes)) > 0) {
+                    out.write(bytes, 0, count);
+                    /*
+                     size = size - count;
+                     System.err.println("QUEDA: " + size);
+                     */
+                }
+                outToClient.writeBytes("1");
+            } catch (IOException ex) {
+                Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (IOException ex) {
-            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-    }
-
-    public static void cerrarConexiones() {
+        
 
         try {
             out.close();

@@ -113,18 +113,18 @@ public class JFrameServerConnection extends javax.swing.JFrame {
     private void btnServerIniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnServerIniciarActionPerformed
 
         if (!inputServerPuerto.getText().isEmpty() && !inputServerRuta.getText().isEmpty()) {
-            servidor.Servidor.iniciarConexion(Integer.parseInt(inputServerPuerto.getText()), inputServerRuta.getText());
             JFrameServerIndex frameIndex = new JFrameServerIndex();
             frameIndex.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frameIndex.setLocationRelativeTo(null);
             frameIndex.pack();
             frameIndex.setVisible(true);
-
             this.dispose();
+            servidor.Servidor.iniciarConexion(Integer.parseInt(inputServerPuerto.getText()), inputServerRuta.getText());
         } else {
             inputServerPuerto.setText("Error");
             inputServerRuta.setText("Error");
         }
+        
 
     }//GEN-LAST:event_btnServerIniciarActionPerformed
 

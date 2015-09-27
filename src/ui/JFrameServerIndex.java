@@ -34,10 +34,7 @@ public class JFrameServerIndex extends javax.swing.JFrame {
      */
     public JFrameServerIndex() {
         initComponents();
-        servidor.Servidor.aceptarCliente();
-        servidor.Servidor.recibirMensajes();
-        servidor.Servidor.recibirArchivos();
-        servidor.Servidor.cerrarConexiones();
+        
     }
 
     /**

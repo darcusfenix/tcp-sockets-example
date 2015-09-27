@@ -28,12 +28,14 @@ import java.awt.Button;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
@@ -79,41 +81,32 @@ public class Cliente {
 
     public static void enviarArchivos(List<Archivo> archivos) {
         for (Archivo archivo : archivos) {
-            File file = new File(archivo.getRuta());
-            
-            Long length = file.length();
-            byte[] bytes = new byte[16 * 1024];
-            
-            try {
-                in = new FileInputStream(file);
-            } catch (FileNotFoundException ex) {
-                System.err.println(ex.getMessage());
-            }
-            
-            try {
-                out = socket.getOutputStream();
-            } catch (IOException ex) {
-                System.err.println(ex.getMessage());
-            }
 
             try {
-                outToMessage = new DataOutputStream(socket.getOutputStream());
-            } catch (IOException ex) {
-                System.err.println(ex.getMessage());
-            }
+                BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            try {
-                outToMessage.writeChars(archivo.getNombre());
-            } catch (IOException ex) {
-                System.err.println(ex.getMessage());
-            }
+                if (inFromServer.readLine().equals("1")) {
 
-            System.err.println("CLIENTE: " + file.length());
+                    File file = new File(archivo.getRuta());
 
-            int count;
-            try {
-                while ((count = in.read(bytes)) > 0) {
-                    out.write(bytes, 0, count);
+                    Long length = file.length();
+                    byte[] bytes = new byte[16 * 1024];
+
+                    in = new FileInputStream(file);
+
+                    out = socket.getOutputStream();
+
+                    outToMessage = new DataOutputStream(socket.getOutputStream());
+
+                    outToMessage.writeChars(archivo.getNombre());
+
+                    System.err.println("CLIENTE: " + file.length());
+
+                    int count;
+
+                    while ((count = in.read(bytes)) > 0) {
+                        out.write(bytes, 0, count);
+                    }
                 }
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
