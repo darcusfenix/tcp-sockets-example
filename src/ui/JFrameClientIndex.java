@@ -23,6 +23,15 @@
  */
 package ui;
 
+import bean.Archivo;
+import java.io.File;
+import javax.swing.JFileChooser;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+
 /**
  *
  * @author darcusfenix
@@ -56,6 +65,11 @@ public class JFrameClientIndex extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         btnUploadFIles.setText("SELECCIONAR ARCHIVOS");
+        btnUploadFIles.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUploadFIlesActionPerformed(evt);
+            }
+        });
 
         textAreaLogClient.setColumns(20);
         textAreaLogClient.setRows(5);
@@ -65,6 +79,15 @@ public class JFrameClientIndex extends javax.swing.JFrame {
 
         tableClient.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
                 {null, null, null, null, null},
                 {null, null, null, null, null},
                 {null, null, null, null, null},
@@ -118,6 +141,64 @@ public class JFrameClientIndex extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnUploadFIlesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUploadFIlesActionPerformed
+        JFileChooser chooser = new JFileChooser();
+        chooser.setMultiSelectionEnabled(true);
+      
+        chooser.showOpenDialog(this);
+
+        File[] files = chooser.getSelectedFiles();
+        
+
+        for (Integer i = 0; i < files.length; i++) {
+            String extension = "";
+
+            Integer j = files[i].getName().lastIndexOf('.');
+            if (j > 0) {
+                extension = files[i].getName().substring(j + 1);
+            }
+            
+            Archivo archivo = new Archivo(files[i].getName(), extension, files[i].length(), false, 0);
+            
+            for (Integer w = 0; w < 5; w++){
+                String mensaje;
+                switch(w){
+                    case 0: 
+                        tableClient.getModel().setValueAt(archivo.getNombre(), i, w);
+                        break;
+                    case 1:
+                        tableClient.getModel().setValueAt(archivo.getTipo(), i, w);
+                        break;
+                    case 2:
+                        String mensajeSize = archivo.getSize() + " bytes";
+                        tableClient.getModel().setValueAt(mensajeSize, i, w);
+                        break;
+                    case 3:
+                        String mensajeEstado;
+                        if (archivo.isEstado()) {
+                           mensajeEstado = "Enviado";
+                        }else{
+                           mensajeEstado = "En pausa";
+                        }
+                        tableClient.getModel().setValueAt(mensajeEstado, i, w);
+                        break;
+                    case 4:
+                        String mensajePorcentaje = "% " + archivo.getPorcentaje();
+                        tableClient.getModel().setValueAt(mensajePorcentaje, i, w);
+                        break;
+                    default:
+                        tableClient.getModel().setValueAt("upss", i, w);
+                        break;
+                }
+            }
+                
+            
+            
+            System.err.println(archivo);
+        }
+        
+    }//GEN-LAST:event_btnUploadFIlesActionPerformed
 
     /**
      * @param args the command line arguments
