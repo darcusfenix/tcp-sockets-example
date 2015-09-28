@@ -123,10 +123,10 @@ public class JFrameClientConnection extends javax.swing.JFrame {
 
     private void btnConectarseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConectarseActionPerformed
         
-        
+        /*
         try {
             if (!inputIP.getText().isEmpty() && !inputIP.getText().isEmpty()){
-                cliente.Cliente.iniciarConexion(inputIP.getText(),Integer.parseInt(inputPuerto.getText()));
+                //cliente.Cliente.iniciarConexion(inputIP.getText(),Integer.parseInt(inputPuerto.getText()));
                 JFrameClientIndex frameIndex = new JFrameClientIndex();
                 frameIndex.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 frameIndex.setLocationRelativeTo(null);
@@ -142,6 +142,7 @@ public class JFrameClientConnection extends javax.swing.JFrame {
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         }
+        */
     }//GEN-LAST:event_btnConectarseActionPerformed
 
     /**

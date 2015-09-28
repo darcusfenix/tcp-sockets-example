@@ -119,7 +119,7 @@ public class JFrameServerConnection extends javax.swing.JFrame {
             frameIndex.pack();
             frameIndex.setVisible(true);
             this.dispose();
-            servidor.Servidor.iniciarConexion(Integer.parseInt(inputServerPuerto.getText()), inputServerRuta.getText());
+            //servidor.Servidor.iniciarConexion(Integer.parseInt(inputServerPuerto.getText()), inputServerRuta.getText());
         } else {
             inputServerPuerto.setText("Error");
             inputServerRuta.setText("Error");

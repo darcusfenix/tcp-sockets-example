@@ -5,7 +5,7 @@
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
+ * in the Software withoutputStream restriction, including withoutputStream limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
@@ -23,7 +23,6 @@
  */
 package servidor;
 
-import bean.Archivo;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -35,6 +34,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,95 +48,96 @@ import ui.JFrameServerConnection;
  */
 public class Servidor {
 
-    public static String rutaGuardado;
-    public static Integer numArchivos;
     private JFrameServerConnection frameConnection;
-    public static ServerSocket serverSocket;
-    public static Socket socket;
 
-    public static DataOutputStream outToMessage;
-    public static Long size;
+    private OutputStream outputStream;
+    private InputStream inputStream;
+
+    private DataOutputStream dataOutputStream;
+    private DataInputStream dataInputStream;
+
+    private ServerSocket serverSocket;
+    private Socket socket;
+
+    private Integer numberFiles;
+    private boolean flag;
+    private ArrayList<String> infos;
 
     public Servidor() {
-        frameConnection = new JFrameServerConnection();
-        init();
+        //frameConnection = new JFrameServerConnection();
+        //init();
     }
 
     public void init() {
-        frameConnection.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frameConnection.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frameConnection.setLocationRelativeTo(null);
         frameConnection.pack();
         frameConnection.setVisible(true);
     }
 
-    public static void iniciarConexion(Integer puerto, String ruta) {
-        System.err.println("SE INICIA CONEXIÓN");
-        rutaGuardado = ruta;
+    public void iniciarConexion(Integer puerto, String ruta) {
+        infos = new ArrayList<String>();
+
+        this.outputStream = null;
+        this.inputStream = null;
+
+        this.dataOutputStream = null;
+        this.dataInputStream = null;
+
+        this.socket = null;
+        this.numberFiles = null;
+        this.flag = true;
+
         try {
-            serverSocket = new ServerSocket(4444);
-        } catch (IOException ex) {
-            System.out.println("Can't setup server on this port number. ");
-        }
+            this.serverSocket = new ServerSocket(4444);
+            this.socket = this.serverSocket.accept();
 
-        socket = null;
+            this.inputStream = socket.getInputStream();
 
-        try {
-            socket = serverSocket.accept();
-        } catch (IOException ex) {
-            System.out.println("Can't accept client connection. ");
-        }
+            dataInputStream = new DataInputStream(socket.getInputStream());
+            Integer num = dataInputStream.readInt();
+            System.err.println(num);
 
-        DataInputStream inFromClient = null;
-        try {
-            inFromClient = new DataInputStream(socket.getInputStream());
-            numArchivos = inFromClient.readInt();
-            System.err.println(numArchivos);
-        } catch (IOException ex) {
-            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        OutputStream out = null;
-        InputStream in = null;
-        for (int i = 0; i < numArchivos; i++) {
-            System.err.println("archivo: " + i);
-
+            /*
+             this.dataOutputStream = new DataOutputStream(this.socket.getOutputStream());
+             this.dataOutputStream.flush();
+             */
             try {
-                DataOutputStream outToClient = new DataOutputStream(socket.getOutputStream());
-                in = socket.getInputStream();
 
-                out = new FileOutputStream(rutaGuardado + "/archivo-" + numArchivos);
+                dataInputStream = new DataInputStream(socket.getInputStream());
+                String fileName = dataInputStream.readUTF();
+                String fileTipo = dataInputStream.readUTF();
+                long size = dataInputStream.readLong();
+                System.err.println(size);
+
+                FileOutputStream fileOut = new FileOutputStream("/home/darcusfenix/NetBeansProjects/recibir/" + fileName);
 
                 byte[] bytes = new byte[16 * 1024];
-
                 int count;
-                while ((count = in.read(bytes)) > 0) {
-                    out.write(bytes, 0, count);
-                    /*
-                     size = size - count;
-                     System.err.println("QUEDA: " + size);
-                     */
+                while ((count = this.inputStream.read(bytes)) > 0) {
+                    fileOut.write(bytes, 0, count);
+                    size -= count;
+                    System.err.println("QUEDA: " + size);
                 }
-                outToClient.writeBytes("1");
-            } catch (IOException ex) {
-                Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        
 
-        try {
-            out.close();
-            in.close();
-            socket.close();
-            serverSocket.close();
+                boolean abc = dataInputStream.readBoolean();
+                System.err.println(abc);
+            } catch (FileNotFoundException ex) {
+                System.err.println(ex.getMessage());
+            }
+
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         }
+
     }
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        new Servidor();
+    public static void main(String[] args) throws IOException {
+        System.err.println("SERVIDOR");
+        Servidor servidor = new Servidor();
+        servidor.iniciarConexion(4444, "/home/darcusfenix/NetBeansProjects/recibir");
     }
 }

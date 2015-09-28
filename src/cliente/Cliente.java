@@ -24,28 +24,22 @@
 package cliente;
 
 import bean.Archivo;
-import java.awt.Button;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import ui.JFrameClientConnection;
-import ui.JFrameClientIndex;
 
 /**
  *
@@ -54,82 +48,89 @@ import ui.JFrameClientIndex;
 public class Cliente {
 
     private JFrameClientConnection frameConnection;
-    public static Socket socket;
-    public static InputStream in;
-    public static OutputStream out;
-    public static DataOutputStream outToMessage;
-
+    
+    private String ip;
+    private Integer puerto;
+    
     public Cliente() {
-        frameConnection = new JFrameClientConnection();
-        init();
+        //frameConnection = new JFrameClientConnection();
+        //init();
     }
 
     public void init() {
-        frameConnection.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frameConnection.setLocationRelativeTo(null);
-        frameConnection.pack();
-        frameConnection.setVisible(true);
+        /*
+         frameConnection.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+         frameConnection.setLocationRelativeTo(null);
+         frameConnection.pack();
+         frameConnection.setVisible(true);
+         */
     }
 
-    public static void iniciarConexion(String ip, Integer puerto) throws IOException {
+    public void iniciarConexion(String ip, Integer puerto){
+        this.ip = ip;
+        this.puerto = puerto;
+    }
+
+    public Boolean enviarArchivos(Archivo archivo) throws IOException {
+
+        
         try {
-            socket = new Socket(ip, puerto);
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-    }
+                Socket socket = new Socket(ip, puerto);
+                DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+                
+                dataOutputStream.writeInt(4);
+                //while (flag) {                    
+                dataOutputStream.writeUTF(archivo.getNombre());
+                dataOutputStream.writeUTF(archivo.getTipo());
+                dataOutputStream.writeLong(archivo.getSize());
 
-    public static void enviarArchivos(List<Archivo> archivos) {
-        for (Archivo archivo : archivos) {
+                File file = new File(archivo.getRuta() + "/" + archivo.getNombre());
 
-            try {
-                BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                Long length = file.length();
+                byte[] bytes = new byte[16 * 1024];
 
-                if (inFromServer.readLine().equals("1")) {
+                InputStream inputStream = new FileInputStream(file);
 
-                    File file = new File(archivo.getRuta());
+                OutputStream outputStream = socket.getOutputStream();
 
-                    Long length = file.length();
-                    byte[] bytes = new byte[16 * 1024];
-
-                    in = new FileInputStream(file);
-
-                    out = socket.getOutputStream();
-
-                    outToMessage = new DataOutputStream(socket.getOutputStream());
-
-                    outToMessage.writeChars(archivo.getNombre());
-
-                    System.err.println("CLIENTE: " + file.length());
-
-                    int count;
-
-                    while ((count = in.read(bytes)) > 0) {
-                        out.write(bytes, 0, count);
-                    }
+                int count;
+                long size = archivo.getSize();
+                while ((count = inputStream.read(bytes)) > 0) {
+                    outputStream.write(bytes, 0, count);
+                    size -= count;
+                    System.err.println("QUEDA: " + size);
                 }
-            } catch (IOException ex) {
-                System.err.println(ex.getMessage());
-            }
-        }
-    }
-
-    public static void cerrarConexiones() {
-
-        try {
-            out.close();
-            in.close();
-            socket.close();
+                dataOutputStream.writeBoolean(true);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         }
+        return true;
     }
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        new Cliente();
+    public static void main(String[] args) throws IOException {
+        System.err.println("CLIENTE");
+        Cliente cliente = new Cliente();
+        
+        List<Archivo> archivos = null;
+        archivos = new ArrayList<Archivo>();
+
+        archivos.add(new Archivo("data.sql", "sql", new Long(24867), false, 0, "/home/darcusfenix/Escritorio"));
+        archivos.add(new Archivo("a.html", "html", new Long(21523), false, 0, "/home/darcusfenix/Escritorio"));
+        archivos.add(new Archivo("a.js", "js", new Long(4363), false, 0, "/home/darcusfenix/Escritorio"));
+        archivos.add(new Archivo("angular-sanitize.min.js", "js", new Long(4294), false, 0, "/home/darcusfenix/Escritorio"));
+        
+        cliente.iniciarConexion("192.168.1.84", 4444);
+        
+        
+        for (Archivo archivo : archivos) {
+            cliente.enviarArchivos(archivo);
+        }
+        
+        
     }
 
 }

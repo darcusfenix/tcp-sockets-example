@@ -224,7 +224,7 @@ public class JFrameClientIndex extends javax.swing.JFrame {
     }//GEN-LAST:event_btnUploadFIlesActionPerformed
 
     private void btnEnviarArchivosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarArchivosActionPerformed
-        cliente.Cliente.enviarArchivos(archivos);
+        //cliente.Cliente.enviarArchivos(archivos);
     }//GEN-LAST:event_btnEnviarArchivosActionPerformed
 
     /**

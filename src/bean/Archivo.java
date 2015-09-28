@@ -28,7 +28,7 @@ package bean;
  * @author darcusfenix
  */
 public class Archivo {
-    
+
     private String nombre;
     private String tipo;
     private Long size;
@@ -101,4 +101,3 @@ public class Archivo {
         return "Archivo{" + "nombre=" + nombre + ", tipo=" + tipo + ", size=" + size + ", estado=" + estado + ", porcentaje=" + porcentaje + ", ruta=" + ruta + '}';
     }
 }
-
