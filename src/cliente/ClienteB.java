@@ -23,6 +23,7 @@
  */
 package cliente;
 
+import bean.Archivo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,6 +34,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -42,37 +45,64 @@ public class ClienteB {
 
     public static void main(String[] args) throws IOException {
 
+        List<Archivo> archivos = null;
+        archivos = new ArrayList<Archivo>();
+
+        //archivos.add(new Archivo("a.html", "html", new Long(21523), false, 0, "/home/darcusfenix/Escritorio"));
+        archivos.add(new Archivo("angular_sanitize.min.js", "js", new Long(4294), false, 0, "/home/darcusfenix/Escritorio"));
+        archivos.add(new Archivo("data.sql", "sql", new Long(24867), false, 0, "/home/darcusfenix/Escritorio"));
+
+        archivos.add(new Archivo("a.js", "js", new Long(4363), false, 0, "/home/darcusfenix/Escritorio"));
+
         String hostName = "localhost";
         int portNumber = 4444;
+        String fromServer;
+        String fromUser = null;
 
-        try (
-                Socket kkSocket = new Socket(hostName, portNumber);
-                PrintWriter out = new PrintWriter(kkSocket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(kkSocket.getInputStream()));) {
-            BufferedReader stdIn
-                    = new BufferedReader(new InputStreamReader(System.in));
-            String fromServer;
-            String fromUser;
+        try {
+            Socket kkSocket = new Socket(hostName, portNumber);
+            PrintWriter out = new PrintWriter(kkSocket.getOutputStream(), true);
+//            BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+            BufferedReader in = new BufferedReader(new InputStreamReader(kkSocket.getInputStream()));
+
+            Integer enviados = -1;
 
             while ((fromServer = in.readLine()) != null) {
                 System.out.println("Server: " + fromServer);
-                if (fromServer.equals("Bye.")) {
-                    break;
+
+                if (fromServer.equals("0")) {
+                    enviados++;
+                    String archivoAENviar = archivos.get(enviados).getNombre() + "-" + archivos.get(enviados).getTipo() + "-" + archivos.get(enviados).getSize();
+                    System.err.println("EL CLIENTE RECIBE PETICIÓN DE LISTO DEL SERVIDOR -------- " + archivoAENviar);
+
+                    out.println(archivoAENviar);
+                    out.flush();
                 }
 
-                fromUser = stdIn.readLine();
-                if (fromUser != null) {
-                    System.out.println("Client: " + fromUser);
-                    out.println(fromUser);
+                if (fromServer.equals("1")) {
+                    File file = new File(archivos.get(enviados).getRuta() + "/" + archivos.get(enviados).getNombre());
+
+                    Long length = file.length();
+                    byte[] bytes = new byte[16 * 1024];
+
+                    InputStream inputStream = new FileInputStream(file);
+
+                    OutputStream outputStream = kkSocket.getOutputStream();
+
+                    int count;
+                    long size = archivos.get(enviados).getSize();
+                    while ((count = inputStream.read(bytes)) > 0) {
+                        outputStream.write(bytes, 0, count);
+                    }
+                    outputStream.flush();
+                    
+                    System.err.println("EL CLIENTE FINALIZA ENVIO DE ARCHIVO");
                 }
             }
-        } catch (UnknownHostException e) {
-            System.err.println("Don't know about host " + hostName);
-            System.exit(1);
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("Couldn't get I/O for the connection to "
                     + hostName);
-            System.exit(1);
         }
+
     }
 }
