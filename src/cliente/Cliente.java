@@ -101,6 +101,8 @@ public class Cliente {
                     size -= count;
                     System.err.println("QUEDA: " + size);
                 }
+                
+                
                 dataOutputStream.writeBoolean(true);
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
